@@ -13,14 +13,13 @@ I was given permission to rename this inventory and continue its development.
 **Configured for Current QB-Core**
 **Added QB-Target Vending Machines**
 
-**Press K to open inventory**
 **Tab will trigger your Hotbar**
 
 **Dependencies:**
 - DP-Emotes: <a href="https://github.com/andristum/dpemotes">Link</a>
 - DP-Clothing: <a href="https://github.com/andristum/dpclothing">Link</a>
 - ox-mysql: <a href="https://github.com/overextended/oxmysql">Link</a>
-- 
+
 **Optional:**
 - QB-Target https://github.com/BerkieBb/qb-target
 - Polyzone https://github.com/mkafrin/PolyZone
