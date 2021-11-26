@@ -18,8 +18,8 @@ Please let me know if you find any issues with the inventory: TheLostEcho#0001
 **Added QB-Target Vending Machines**
 
 **Shout out to QB-Inventory and AJ-Inventory**
-	https://github.com/qbcore-framework/qb-inventory
-	https://github.com/ihyajb/aj-inventory
+- DP-Emotes: <a href="https://github.com/qbcore-framework/qb-inventory">Link</a>
+- DP-Emotes: <a href="https://github.com/ihyajb/aj-inventory">Link</a>
 	
 **Dependencies:**
 - DP-Emotes: <a href="https://github.com/andristum/dpemotes">Link</a>
