@@ -886,6 +886,12 @@ RegisterCommand('closeinv', function()
     DeletePedScreen()
 end, false)
 
+
+RegisterNUICallback("UseItem", function(data, cb)
+    TriggerServerEvent("inventory:server:UseItem", data.inventory, data.item)
+end)
+
+
 RegisterKeyMapping('inventory', 'Open Inventory', 'keyboard', 'TAB')
 RegisterKeyMapping('hotbar', 'Toggles keybind slots', 'keyboard', 'z')
 
