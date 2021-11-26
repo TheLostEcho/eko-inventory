@@ -1,42 +1,24 @@
 local QBCore = exports['qb-core']:GetCoreObject()
-
 local inInventory = false
-local hotbarOpen = false
-
-local inventoryTest = {}
 local currentWeapon = nil
 local CurrentWeaponData = {}
 local currentOtherInventory = nil
-
 local Drops = {}
 local CurrentDrop = 0
 local DropsNear = {}
-
 local CurrentVehicle = nil
 local CurrentGlovebox = nil
 local CurrentStash = nil
 local isCrafting = false
-
+local isHotbar = false
 local showTrunkPos = false
-Citizen.CreateThread(function ()
-    Citizen.Wait(2000)
-    while true do
-        Citizen.Wait(0)
-        HideHudComponentThisFrame(19)
-        HideHudComponentThisFrame(20)
-        BlockWeaponWheelThisFrame()
-        DisableControlAction(0, 48,true)
-    end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    LocalPlayer.state:set("inv_busy", false, true)
 end)
-Citizen.CreateThread(function()
-    while true do
-        
-        Citizen.Wait(10)
-        if QBCore == nil then
-            TriggerEvent("QBCore:GetObject", function(obj) QBCore = obj end)
-            Citizen.Wait(200)
-        end
-    end
+
+RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+    LocalPlayer.state:set("inv_busy", true, true)
 end)
 
 RegisterNetEvent('inventory:client:CheckOpenState')
@@ -80,6 +62,7 @@ function GetClosestVending()
     end
     return object
 end
+
 RegisterNetEvent('randPickupAnim')
 AddEventHandler('randPickupAnim', function()
     while not HasAnimDictLoaded("pickup_object") do RequestAnimDict("pickup_object") Wait(100) end
@@ -116,23 +99,23 @@ function DrawText3Ds(x, y, z, text)
     ClearDrawOrigin()
 end
 
-Citizen.CreateThread(function()
+CreateThread(function()
     while true do
-        
-        Citizen.Wait(7)
+        Wait(7)
         if showTrunkPos and not inInventory then
             local vehicle = QBCore.Functions.GetClosestVehicle()
             if vehicle ~= 0 and vehicle ~= nil then
-                local pos = GetEntityCoords(PlayerPedId())
+                local ped = PlayerPedId()
+                local pos = GetEntityCoords(ped)
                 local vehpos = GetEntityCoords(vehicle)
-                if (GetDistanceBetweenCoords(pos.x, pos.y, pos.z, vehpos.x, vehpos.y, vehpos.z, true) < 5.0) and not IsPedInAnyVehicle(PlayerPedId()) then
+                if #(pos - vehpos) < 5.0 and not IsPedInAnyVehicle(ped) then
                     local drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, -2.5, 0)
                     if (IsBackEngine(GetEntityModel(vehicle))) then
                         drawpos = GetOffsetFromEntityInWorldCoords(vehicle, 0, 2.5, 0)
                     end
-                    QBCore.Functions.DrawText3D(drawpos.x, drawpos.y, drawpos.z, "Trunk")
-                    if (GetDistanceBetweenCoords(pos.x, pos.y, pos.z, drawpos) < 2.0) and not IsPedInAnyVehicle(PlayerPedId()) then
-                        CurrentVehicle = GetVehicleNumberPlateText(vehicle)
+                    DrawText3Ds(drawpos.x, drawpos.y, drawpos.z, "Trunk")
+                    if #(pos - drawpos) < 2.0 and not IsPedInAnyVehicle(ped) then
+                        CurrentVehicle = QQBCore.Functions.GetPlate(vehicle)
                         showTrunkPos = false
                     end
                 else
@@ -142,12 +125,14 @@ Citizen.CreateThread(function()
         end
     end
 end)
+
 RegisterNetEvent('eko-inventory:hotbar')
 AddEventHandler('eko-inventory:hotbar', function(itemData, type)
     ToggleHotbar(true)
     Wait(1500)
     ToggleHotbar(false)
 end)
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(0)
@@ -165,7 +150,7 @@ Citizen.CreateThread(function()
                     local curVeh = nil
                     if IsPedInAnyVehicle(PlayerPedId()) then
                         local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
-                        CurrentGlovebox = GetVehicleNumberPlateText(vehicle)
+                        CurrentGlovebox = QBCore.Functions.GetPlate(vehicle)
                         curVeh = vehicle
                         CurrentVehicle = nil
                     else
@@ -178,7 +163,7 @@ Citizen.CreateThread(function()
                             end
                             if (GetDistanceBetweenCoords(pos.x, pos.y, pos.z, trunkpos) < 2.0) and not IsPedInAnyVehicle(PlayerPedId()) then
                                 if GetVehicleDoorLockStatus(vehicle) < 2 then
-                                    CurrentVehicle = GetVehicleNumberPlateText(vehicle)
+                                    CurrentVehicle = QBCore.Functions.GetPlate(vehicle)
                                     curVeh = vehicle
                                     CurrentGlovebox = nil
                                 else
@@ -318,16 +303,16 @@ AddEventHandler('inventory:client:ItemBox', function(itemData, type)
     })
 end)
 
-RegisterNetEvent('inventory:client:requiredItems')
-AddEventHandler('inventory:client:requiredItems', function(items, bool)
+RegisterNetEvent('inventory:client:requiredItems', function(items, bool)
+
     local itemTable = {}
     if bool then
         for k, v in pairs(items) do
-            table.insert(itemTable, {
+            itemTable[#itemTable+1] = {
                 item = items[k].name,
                 label = QBCore.Shared.Items[items[k].name]["label"],
                 image = items[k].image,
-            })
+            }
         end
     end
 
@@ -421,7 +406,6 @@ AddEventHandler("inventory:client:OpenInventory", function(PlayerAmmo, inventory
             other = other,
             maxweight = QBCore.Config.Player.MaxWeight,
             Ammo = PlayerAmmo,
-            maxammo = Config.MaximumAmmoValues,
             maxammo = Config.MaximumAmmoValues,
             aaa = QBCore.Functions.GetPlayerData().charinfo.firstname..' '..QBCore.Functions.GetPlayerData().charinfo.lastname,
             charhealth = GetEntityHealth(PlayerPedId())-100,
@@ -571,9 +555,9 @@ end)
 
 RegisterNetEvent("inventory:client:UseSnowball")
 AddEventHandler("inventory:client:UseSnowball", function(amount)
-    GiveWeaponToPed(PlayerPedId(), GetHashKey("weapon_snowball"), amount, false, false)
-    SetPedAmmo(PlayerPedId(), GetHashKey("weapon_snowball"), amount)
-    SetCurrentPedWeapon(PlayerPedId(), GetHashKey("weapon_snowball"), true)
+    GiveWeaponToPed(ped, `weapon_snowball`, amount, false, false)
+    SetPedAmmo(ped, `weapon_snowball`, amount)
+    SetCurrentPedWeapon(ped, `weapon_snowball`, true)
 end)
 
 RegisterNetEvent('inventory:client:UseWeapon', function(weaponData, shootbool)
@@ -617,70 +601,6 @@ RegisterNetEvent('inventory:client:UseWeapon', function(weaponData, shootbool)
         end, CurrentWeaponData)
     end
 end)
-
-
-WeaponAttachments = {
-    ["WEAPON_SNSPISTOL"] = {
-        ["extendedclip"] = {
-            component = "COMPONENT_SNSPISTOL_CLIP_02",
-            label = "Extended Clip",
-            item = "pistol_extendedclip",
-        },
-    },
-    ["WEAPON_VINTAGEPISTOL"] = {
-        ["suppressor"] = {
-            component = "COMPONENT_AT_PI_SUPP",
-            label = "Suppressor",
-            item = "pistol_suppressor",
-        },
-        ["extendedclip"] = {
-            component = "COMPONENT_VINTAGEPISTOL_CLIP_02",
-            label = "Extended Clip",
-            item = "pistol_extendedclip",
-        },
-    },
-    ["WEAPON_MICROSMG"] = {
-        ["suppressor"] = {
-            component = "COMPONENT_AT_AR_SUPP_02",
-            label = "Suppressor",
-            item = "smg_suppressor",
-        },
-        ["extendedclip"] = {
-            component = "COMPONENT_MICROSMG_CLIP_02",
-            label = "Extended Clip",
-            item = "smg_extendedclip",
-        },
-        ["flashlight"] = {
-            component = "COMPONENT_AT_PI_FLSH",
-            label = "Flashlight",
-            item = "smg_flashlight",
-        },
-        ["scope"] = {
-            component = "COMPONENT_AT_SCOPE_MACRO",
-            label = "Scope",
-            item = "smg_scope",
-        },
-    },
-    ["WEAPON_MINISMG"] = {
-        ["extendedclip"] = {
-            component = "COMPONENT_MINISMG_CLIP_02",
-            label = "Extended Clip",
-            item = "smg_extendedclip",
-        },
-    },
-    ["WEAPON_COMPACTRIFLE"] = {
-        ["extendedclip"] = {
-            component = "COMPONENT_COMPACTRIFLE_CLIP_02",
-            label = "Extended Clip",
-            item = "rifle_extendedclip",
-        },
-        ["drummag"] = {
-            component = "COMPONENT_COMPACTRIFLE_CLIP_03",
-            label = "Drum Mag",
-            item = "rifle_drummag",
-        },
-    },
-}
 
 
 function FormatWeaponAttachments(itemdata)
@@ -823,12 +743,10 @@ RegisterNUICallback("CloseInventory", function(data, cb)
         CurrentDrop = 0
     end
     SetNuiFocus(false, false)
+    DeletePedScreen()
     inInventory = false
 end)
 
-RegisterNUICallback("UseItem", function(data, cb)
-    TriggerServerEvent("inventory:server:UseItem", data.inventory, data.item)
-end)
 
 RegisterNUICallback("combineItem", function(data)
     Wait(150)
@@ -956,71 +874,19 @@ function LoadAnimDict( dict )
     end
 end
 
+
 function closeInventory()
-    inInventory = false
-    ClearPedSecondaryTask(PlayerPedId())
-    SetNuiFocus(false, false)
     SendNUIMessage({
         action = "close",
     })
-    ClearPedTasks(PlayerPedId())
 end
+
 RegisterCommand('closeinv', function()
     closeInventory()
+    DeletePedScreen()
 end, false)
 
--- exports['qb-target']:AddTargetModel(Config.VendingObjects, {  --Uncomment lines 966-1012 to QB-Target Vending Machines
---     options = {
---         {
---             type = "client",
---             event = 'vendingDrink:buy',
---             icon = "fas fa-shopping-basket",
---             label = "Insert Coin",
---         },
---         {
---             type = "client",
---             event = 'vendingSnack:buy',
---             icon = "fas fa-shopping-basket",
---             label = "Insert Coin",
---         },
---         {
---             type = "client",
---             event = 'vendingCoffee:buy',
---             icon = "fas fa-shopping-basket",
---             label = "Insert Coin",
---         },
---     },
---     distance = 2.5,
---  })
-
--- RegisterNetEvent('vendingDrink:buy', function()
---     local ShopItems = {}
---     ShopItems.label = "Vending Machine"
---     ShopItems.items = Config.itemDrink
---     ShopItems.slots = #Config.itemDrink
---     TriggerServerEvent("inventory:server:OpenInventory", "shop", "Vendingshop_", ShopItems)
--- end)
-
--- RegisterNetEvent('vendingSnack:buy', function()
---     local snackItems = {}
---     snackItems.label = "Vending Machine"
---     snackItems.items = Config.itemSnack
---     snackItems.slots = #Config.itemSnack
---     TriggerServerEvent("inventory:server:OpenInventory", "shop", "Vendingshop_", snackItems)
--- end)
-
--- RegisterNetEvent('vendingCoffee:buy', function()
---     local coffeeItems = {}
---     coffeeItems.label = "Coffee Machine"
---     coffeeItems.items = Config.itemCoffee
---     coffeeItems.slots = #Config.itemCoffee
---     TriggerServerEvent("inventory:server:OpenInventory", "shop", "Vendingshop_", coffeeItems)
--- end)
-
-
-
 RegisterKeyMapping('inventory', 'Open Inventory', 'keyboard', 'TAB')
-
 RegisterKeyMapping('hotbar', 'Toggles keybind slots', 'keyboard', 'z')
 
 
@@ -1032,3 +898,4 @@ RegisterCommand('hotbar', function()
 		end
 	end)
 end)
+

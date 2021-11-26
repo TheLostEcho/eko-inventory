@@ -26,9 +26,11 @@ $(document).on("keydown", function() {
     switch (event.keyCode) {
         case 27: // ESC
             Inventory.Close();
+            isClothOpen = false;
             break;
         case 9: // TAB
             Inventory.Close();
+            isClothOpen = false;
             break;
         case 17: // TAB
             ControlPressed = true;
@@ -1611,7 +1613,7 @@ var requiredItemOpen = false;
                 }
                 $(this).attr('title',
                 '<b><h style="text-align:left;">'+(item.label).toUpperCase()+'</h></b><hr style="background-color: white;">'+
-                '<div style="height: auto; weight: auto; padding-left: 3px; padding-right: 3px; border-radius: 50%;">Weight: '+item.weight/1000+' KG | Amount: '+item.amount+' | Quality '+Math.ceil(item.info.quality)+' | '+item.info.serie+' | '+item.info.label+' </div>'
+                '<div style="height: auto; weight: auto; padding-left: 3px; padding-right: 3px; border-radius: 50%;">Weight: '+item.weight/1000+' Lbs | Amount: '+item.amount+' | Quality '+Math.ceil(item.info.quality)+' | '+item.info.serie+' | '+item.info.label+' </div>'
                 )
             }else{
                 $(this).attr('title','')
@@ -1619,7 +1621,6 @@ var requiredItemOpen = false;
             }
             $(this).tooltip(); 
         });
-        $('#item-give').attr('title','Give Item ').tooltip()
         $('#item-amount').attr('title','Set Amount/Quantity').tooltip()
         $('.healthbar').attr('title','Your Health').tooltip()
         $('.shieldbar').attr('title','Your Armor').tooltip()
@@ -1645,10 +1646,11 @@ var requiredItemOpen = false;
             if (isClothOpen == false){
                 isClothOpen = true
                 $.post("https://eko-inventory/OpenClothMenu", JSON.stringify({delete:isClothOpen}));
-                $(this).css('color','rgba(255, 255, 255, 0.38)')
+                $(this).css('color','rgba(255, 255, 255, 0.749')
+
             }else if (isClothOpen == true){
                 isClothOpen = false
-                $(this).css('color','color:rgba(255, 255, 255, 0.5)')
+                $(this).css('color','rgba(53,124,189, 0.75')
                 $.post("https://eko-inventory/OpenClothMenu", JSON.stringify({delete:isClothOpen}));
                 Inventory.Necessary()
             }

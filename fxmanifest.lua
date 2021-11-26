@@ -1,10 +1,9 @@
 fx_version 'cerulean'
 game 'gta5'
 
-author 'Axis'
+author 'TheLostEcho'
 description 'QB-Core'
-version '6.0.0'
-description 'ax-inventory: TheLostEcho'
+version '1.0'
 
 shared_scripts {
 	'@qb-weapons/config.lua',
@@ -13,7 +12,9 @@ shared_scripts {
 
 client_scripts {
 	"config.lua",
-	"client/*",
+	--"client/optional.lua",
+	"client/main.lua",
+	"client/cloth.lua",
 }
 
 server_scripts {

@@ -10,8 +10,8 @@ end
 function CreatePedScreen(first)
     CreateThread(function()
         local heading = GetEntityHeading(PlayerPedId())
-        SetFrontendActive(true)
-        ActivateFrontendMenu(GetHashKey("FE_MENU_VERSION_JOINING_SCREEN"), true, -1)
+    --    SetFrontendActive(true)
+        ActivateFrontendMenu(GetHashKey("FE_MENU_VERSION_EMPTY_NO_BACKGROUND"), true, -1)
         Wait(100)
         SetMouseCursorVisibleInMenus(false)
         PlayerPedPreview = ClonePed(PlayerPedId(), heading, true, false)
@@ -53,6 +53,7 @@ RegisterNUICallback("ChangeComponent",function(data)
     Wait(1000)
     RefreshPedScreen()
 end)
+
 RegisterNUICallback("OpenClothMenu",function(data)
     if data.delete then
        OpenPedClothMenu()
