@@ -2,6 +2,8 @@
 This is a QBCore Inventory Developed off of ax-inventory
 I was given permission to rename this inventory and continue its development.
 
+Since this has been asked many times. Remove -main on the end of the file name prior to starting the script. 
+
 This inventory is modeled off of both aj-inventory and qb-inventory.
 
 This resources is still heavily in-development and it is not advised to use this on production servers. 
