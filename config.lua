@@ -1,7 +1,5 @@
 Config = {}
 
-Config.QBTarget = 'false' -- True or False depending on if youre using QB-Target or not. 
-Config.IDCard = 'true' -- True or False depending on if youre using qb-idcard or not. https://github.com/alp1x/qb-idcard
 
 Config.VendingObjects = {
     "prop_vend_soda_01",
