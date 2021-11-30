@@ -32,7 +32,7 @@ This resources is still heavily in-development and it is not advised to use this
 - Polyzone https://github.com/mkafrin/PolyZone
 
 **If you need help join this discord: https://discord.gg/8DjNfTjHpC**
-**There is a chance I wont respond immediately so please be patient as I am human and I have a real life outside of the computer too**
+There is a chance I wont respond immediately so please be patient as I am human and I have a real life outside of the computer too
 
 **If you are using QB-Target then ensure PolyZone is added to the Server**
 **To use QB-Target Vending Machines uncomment "client/optional.lua", in the FXManifest.lua file**
