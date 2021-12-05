@@ -1,24 +1,17 @@
 fx_version 'cerulean'
 game 'gta5'
 
-author 'TheLostEcho'
-description 'QB-Core'
-version '1.0'
+description 'QB-Inventory'
+version '1.0.0'
 
 shared_scripts {
-	'@qb-weapons/config.lua',
 	'config.lua',
+	'@qb-weapons/config.lua'
 }
 
+server_script 'server/main.lua'
 client_scripts {
-	"config.lua",
-	--"client/optional.lua",
-	"client/main.lua",
-	"client/cloth.lua",
-}
-
-server_scripts {
-	"server/main.lua",
+	'client/main.lua',
 }
 
 ui_page {
@@ -33,10 +26,10 @@ files {
 	'html/images/*.jpg',
 	'html/ammo_images/*.png',
 	'html/attachment_images/*.png',
-	'html/*.ttf',
-	'html/cloth/*.png',
 	'html/cloth/*.svg',
-	'html/sound.mp3'
+	'html/*.ttf'
 }
 
+dependency 'qb-weapons'
 provide 'qb-inventory'
+lua54 'yes'
